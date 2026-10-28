@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080808">
+  <title>TEDDY-XMD AutoPing | Teddy Tech</title>
+  <style>
+    :root{color-scheme:dark;--gold:#ffd54a;--panel:#111;--line:#292929;--muted:#a5a5a5}
+    *{box-sizing:border-box}
+    body{margin:0;background:#080808;color:#f5f5f5;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+    main{width:min(900px,100%);margin:auto;padding:26px 18px}
+    header{padding:20px 0 24px;border-bottom:1px solid var(--line)}
+    h1{margin:0;color:var(--gold);font-size:clamp(25px,5vw,36px);letter-spacing:.3px}
+    .subtitle{margin-top:8px;color:var(--muted)}
+    .card{margin-top:22px;padding:20px;background:var(--panel);border:1px solid var(--line);border-radius:16px}
+    .row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .badge{border-radius:20px;background:#242424;padding:7px 11px;font-size:12px;color:#ddd}
+    button{margin-top:15px;border:0;border-radius:9px;padding:12px 16px;background:var(--gold);color:#111;font-weight:800;cursor:pointer}
+    button:disabled{opacity:.6;cursor:wait}
+    .target{margin:13px 0;overflow-wrap:anywhere;color:#ddd}
+    .muted{font-size:13px;line-height:1.7;color:var(--muted)}
+    .result{border-top:1px solid var(--line);margin-top:18px;padding-top:17px}
+    .message{font-size:13px;color:#ccc;overflow-wrap:anywhere}
+    footer{padding:24px 0;color:#777;font-size:12px}
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>TEDDY-XMD AutoPing</h1>
+    <div class="subtitle">Website availability monitor · Powered by Teddy Tech</div>
+  </header>
+
+  <section class="card">
+    <div class="row">
+      <strong>Monitoring dashboard</strong>
+      <span class="badge" id="connection">Starting…</span>
+    </div>
+    <p class="muted">Check the configured website and see its HTTP status and response time.</p>
+    <button id="checkButton" type="button">CHECK WEBSITES NOW</button>
+    <div id="results" aria-live="polite"></div>
+    <p class="muted">Last updated: <span id="updated">Not checked yet</span></p>
+  </section>
+
+  <section class="card">
+    <strong>About automatic checks</strong>
+    <p class="muted">
+      This dashboard checks when opened and when you press the button.
+      For checks to run every minute while nobody is visiting the website,
+      configure a scheduler to call <code>/api/cron</code> every minute.
+      A serverless function does not stay running continuously in the background.
+    </p>
+  </section>
+  <footer>TEDDY-XMD AutoPing · Teddy Tech</footer>
+</main>
+
+<script>
+const button = document.getElementById("checkButton");
+const results = document.getElementById("results");
+
+async function refreshStatus() {
+  button.disabled = true;
+  button.textContent = "CHECKING…";
+  document.getElementById("connection").textContent = "Checking";
+
+  try {
+    const response = await fetch("/api/status", { cache: "no-store" });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Status request failed");
+
+    results.replaceChildren();
+    for (const target of data.targets || []) {
+      const card = document.createElement("div");
+      card.className = "result";
+
+      const row = document.createElement("div");
+      row.className = "row";
+      const status = document.createElement("strong");
+      status.textContent = target.status;
+      const badge = document.createElement("span");
+      badge.className = "badge";
+      badge.textContent = target.statusCode === null ? "No HTTP response" : "HTTP " + target.statusCode;
+      row.append(status, badge);
+
+      const url = document.createElement("div");
+      url.className = "target";
+      url.textContent = target.url;
+
+      const timing = document.createElement("div");
+      timing.className = "muted";
+      timing.textContent = "Response time: " + target.responseTimeMs + " ms";
+
+      const message = document.createElement("div");
+      message.className = "message";
+      message.textContent = target.message;
+
+      card.append(row, url, timing, message);
+      results.append(card);
+    }
+
+    document.getElementById("connection").textContent = "Connected";
+    document.getElementById("updated").textContent = new Date().toLocaleString();
+  } catch (error) {
+    document.getElementById("connection").textContent = "Error";
+    const message = document.createElement("p");
+    message.className = "muted";
+    message.textContent = "Could not load status: " + error.message;
+    results.replaceChildren(message);
+  } finally {
+    button.disabled = false;
+    button.textContent = "CHECK WEBSITES NOW";
+  }
+}
+
+button.addEventListener("click", refreshStatus);
+refreshStatus();
+</script>
+</body>
+</html>

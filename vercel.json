@@ -1,4 +1,15 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "outputDirectory": "public"
+  "version": 2,
+  "builds": [
+    { "src": "index.html", "use": "@vercel/static" },
+    { "src": "server.js", "use": "@vercel/node" }
+  ],
+  "routes": [
+    { "src": "^/api/status$", "dest": "/server.js?route=status" },
+    { "src": "^/api/cron$", "dest": "/server.js?route=cron" },
+    { "src": "^/$", "dest": "/index.html" },
+    { "src": "^/index.html$", "dest": "/index.html" },
+    { "src": "^(.*)$", "dest": "/index.html" }
+  ]
 }
