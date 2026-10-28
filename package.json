@@ -1,0 +1,15 @@
+{
+  "name": "teddy-xmd-autoping",
+  "version": "1.0.0",
+  "description": "A small dashboard that pings configured websites every minute.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}

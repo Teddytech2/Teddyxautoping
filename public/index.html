@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#080b12">
+  <title>TEDDY-XMD AutoPing</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="glow glow-a"></div><div class="glow glow-b"></div>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">T</div>
+        <div><p class="eyebrow">TEDDY TECH</p><h1>AutoPing<span>.</span></h1></div>
+      </div>
+      <div class="live-pill"><i></i> SERVICE DASHBOARD</div>
+    </header>
+
+    <section class="hero">
+      <div>
+        <p class="eyebrow gold">WEBSITE MONITORING</p>
+        <h2>Keep your sites<br><span>awake and checked.</span></h2>
+        <p class="sub">Configured websites are checked automatically every 60 seconds while this server is running.</p>
+      </div>
+      <div class="hero-mark"><div class="pulse-ring">↗</div><small>60 SEC<br>INTERVAL</small></div>
+    </section>
+
+    <section class="stats">
+      <article class="stat"><span>Configured sites</span><strong id="total">0</strong><small>From server.js</small></article>
+      <article class="stat"><span>Online</span><strong id="online">0</strong><small>Responding successfully</small></article>
+      <article class="stat"><span>Needs attention</span><strong id="issues">0</strong><small>Failed or HTTP 5xx</small></article>
+      <article class="stat"><span>Last dashboard update</span><strong class="small-value" id="updated">—</strong><small>Browser refreshes automatically</small></article>
+    </section>
+
+    <section class="section-head">
+      <div><p class="eyebrow gold">MONITOR</p><h3>Your websites</h3></div>
+      <button id="pingBtn" class="button">↻ Ping all now</button>
+    </section>
+
+    <section id="sites" class="sites">
+      <div class="empty"><div class="empty-icon">＋</div><h3>No websites configured</h3><p>Open <code>server.js</code> and add your website URLs to the <code>TARGETS</code> list.</p></div>
+    </section>
+
+    <section class="how">
+      <div class="how-icon">⌘</div>
+      <div><h3>Configure websites in server.js</h3><p>Add each full URL inside <code>TARGETS</code>, save the file, then restart the service.</p></div>
+      <div class="code-sample"><code>const TARGETS = [<br>&nbsp; "https://example.com/",<br>&nbsp; "https://api.example.com/health"<br>];</code></div>
+    </section>
+
+    <footer><span>TEDDY-XMD AutoPing</span><span>Built by Teddy Tech · Checks every minute</span></footer>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>
