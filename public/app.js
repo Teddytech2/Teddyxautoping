@@ -19,7 +19,7 @@ function render(data) {
   $("updated").textContent = new Date().toLocaleTimeString();
 
   if (!targets.length) {
-    $("sites").innerHTML = `<div class="empty"><div class="empty-icon">＋</div><h3>No websites configured</h3><p>Open <code>server.js</code> and add your website URLs to the <code>TARGETS</code> list.</p></div>`;
+    $("sites").innerHTML = `<div class="empty"><h3>No websites configured</h3><p>Add URLs to the TARGETS array in <code>lib/monitor.js</code>.</p></div>`;
     return;
   }
 
@@ -30,9 +30,9 @@ function render(data) {
       <div class="site-meta">
         <div><span>RESPONSE</span><strong>${t.responseTimeMs == null ? "—" : esc(t.responseTimeMs + " ms")}</strong></div>
         <div><span>HTTP CODE</span><strong>${t.statusCode == null ? "—" : esc(t.statusCode)}</strong></div>
-        <div><span>CHECKS</span><strong>${esc(t.checks ?? 0)}</strong></div>
+        <div><span>CHECKED</span><strong>${esc(t.lastChecked ? new Date(t.lastChecked).toLocaleTimeString() : "—")}</strong></div>
       </div>
-      <div class="site-message">Last checked: ${esc(niceDate(t.lastChecked))} · ${esc(t.message || "")}</div>
+      <div class="site-message">${esc(t.message || "")}</div>
     </article>`;
   }).join("");
 }
@@ -44,6 +44,7 @@ async function refresh() {
     render(await res.json());
   } catch (err) {
     $("updated").textContent = "Offline";
+    $("sites").innerHTML = `<div class="empty"><h3>Could not reach the API</h3><p>Check that the Vercel deployment includes the <code>api/</code> and <code>lib/</code> folders.</p></div>`;
   }
 }
 
@@ -54,10 +55,10 @@ $("pingBtn").addEventListener("click", async () => {
   try {
     const res = await fetch("/api/ping-now", { method: "POST" });
     const data = await res.json();
-    if (!res.ok) alert(data.error || "Ping request failed.");
-    await refresh();
-  } catch {
-    alert("Could not contact the AutoPing server.");
+    if (!res.ok) throw new Error(data.error || "Ping request failed");
+    render({ targetsConfigured: data.results.length, targets: data.results });
+  } catch (err) {
+    alert(err.message || "Could not contact the AutoPing API.");
   } finally {
     btn.disabled = false;
     btn.textContent = "↻ Ping all now";
@@ -65,4 +66,5 @@ $("pingBtn").addEventListener("click", async () => {
 });
 
 refresh();
-setInterval(refresh, 10000);
+// While the dashboard is open, refresh triggers a fresh check every minute.
+setInterval(refresh, 60000);
